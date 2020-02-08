@@ -48,13 +48,15 @@ errorPercent <- function( predictions, answers)
   return ( 100*(1-count/length(predictions)) )
 }
 
+
+#----------------------------
+# Spam Data Analysis
+#----------------------------
+
 X <- fread("spam.data.txt")
 
-#X = X[,-c(58)]
-
-maxIterations <- 50
-
 set.seed(1)
+
 
 sample <- sample.int(n = nrow(X), size = floor(.6*nrow(X)), replace = FALSE, prob = NULL)
 train <- X[sample, ]
@@ -72,7 +74,10 @@ validationY = validation[,58]
 validation = validation[,-c(58)]
 validation = scale( validation )
 
-weights <- gradientDecent(train , trainY , .1 , maxIterations)
+maxIterations <- 50
+stepSize <- 0.1
+
+weights <- gradientDecent(train , trainY , stepSize , maxIterations)
 
 predictionValid <- validation%*%weights
 predictionTrain <- train%*%weights
@@ -102,5 +107,73 @@ legend("topright",
        c("Train","Validation"),
        fill=c("black","red")
 )
+
+
+
+#----------------------------
+# SAHeart Data Analysis
+#----------------------------
+
+X <- fread("SAheart.data.txt")
+
+set.seed(1)
+
+
+sample <- sample.int(n = nrow(X), size = floor(.6*nrow(X)), replace = FALSE, prob = NULL)
+train <- X[sample, ]
+test  <- X[-sample, ]
+
+sample <- sample.int(n = nrow(test), size = floor(.5*nrow(test)), replace = FALSE)
+test <- X[sample, ]
+validation  <- X[-sample, ]
+
+trainY = train[,11]
+train = train[,-c(11)]
+train = scale( train )
+
+validationY = validation[,11]
+validation = validation[,-c(11)]
+validation = scale( validation )
+
+maxIterations <- 200
+stepSize <- 0.01
+
+weights <- gradientDecent(train , trainY , stepSize , maxIterations)
+
+predictionValid <- validation%*%weights
+predictionTrain <- train%*%weights
+
+print( errorPercent(predictionTrain[,1] , trainY) )
+print( errorPercent(predictionValid[,1] , validationY) )
+
+
+trainErrorArray <- rep( 0, maxIterations)
+for( i in 1:maxIterations)
+{
+  trainErrorArray[i] = errorPercent(predictionTrain[,i] , trainY )
+}
+
+validErrorArray <- rep( 0, maxIterations)
+for( i in 1:maxIterations)
+{
+  validErrorArray[i] = errorPercent(predictionValid[,i] , validationY )
+}
+
+plot( c(1:maxIterations), trainErrorArray, type = "l", col = "black", ylim=c(9,50)
+      , ylab="Error Percent", xlab="Iterations")
+
+lines( c(1:maxIterations), validErrorArray, type = "l", col="red")
+
+legend("topright",
+       c("Train","Validation"),
+       fill=c("black","red")
+)
+
+
+
+#----------------------------
+#
+#----------------------------
+
 
 
