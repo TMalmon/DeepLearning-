@@ -39,3 +39,18 @@ y <- spam_datatable[, 58]
 
 is_train <- vector(mode = "logical", length = nrow(x))
 is_train <- sample(c(TRUE, FALSE), nrow(x), replace = TRUE, prob = c(0.8, 0.2))
+
+
+is_subtrain <- vector(mode = "logical", length = ncol(is_train))
+is_subtrain <- sample(c(TRUE,FALSE), ncol(is_train), replace = TRUE, prob = c(0.6, 0.4))
+
+max_epoch <- numeric(1000)
+
+best_epochs <- numeric(0)
+
+nNetOneSplit <- n_net_one_split(x_scale, y, .1, max_epoch, 64, is_subtrain)
+
+best_epochs <- n_net_one_split(x_scale, y, .1, best_epochs, 64, is_subtrain = TRUE)
+
+
+
