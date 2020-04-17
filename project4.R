@@ -41,7 +41,7 @@ for( model_num in 1:num_models){
     fit(
       x = x_scale[is_train,],
       y = as.matrix(y[is_train]),
-      epochs = 20,
+      epochs = 100,
       validation_split = 0.4,
       verbose = 2,
       view_metrics = FALSE
@@ -68,7 +68,10 @@ mins <- metrics[, .(
 # plot val loss for each model
 ggplot()+
   geom_line(aes(
-    x=epoch, y=val_loss, group = model_num, color = model_num, linetype = factor(model_num)),
+    x=epoch, y=val_loss, group = model_num, color = model_num),
+    data=metrics)+
+  geom_line(aes(
+    x=epoch, y=loss, group = model_num, color = model_num, linetype = "dashed"),
     data=metrics)+
   geom_point(aes(
     x=epoch, y=val_loss, color = model_num),
@@ -103,8 +106,7 @@ best_runs <- do.call(rbind, best_runs)
 
 
 # evaluate each model with test set
-for(model_num in 1:length(models))
-{
+for(model_num in 1:length(models)){
   models[[model_num]] %>%
     evaluate( x_scale[!is_train,], as.matrix(y[!is_train]))
 }
